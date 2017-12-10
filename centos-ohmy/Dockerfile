@@ -1,5 +1,5 @@
 FROM centos:centos7
-ARG name=pshingavi/centos-ohmy
+ARG name=xxyy/centos-ohmy
 ARG version
 ENV container docker
 ENV docker "${name}:${version}"
@@ -14,8 +14,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && yum updateinfo && yum makecache fast \
   && yum -y install zip unzip tar gzip gunzip \
       curl wget python-pip openssl openssh \
-      htop zsh rsync sudo vim pv \
-  && yum -y remove city-fan.org ius-release \
+      htop zsh rsync sudo vim pv git2u \
   && pip install --no-cache-dir -U pip virtualenv \
   && useradd ${username} \
   && echo "${username}  ALL=(ALL:ALL)  NOPASSWD: ALL" >/etc/sudoers.d/10-local-user \
@@ -38,6 +37,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && echo "eval $(dircolors -b ~/.dircolors) ;" >> ~/.zshrc \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
   && cd "${work_dir}" \
+  && yum -y remove git2u city-fan.org ius-release \
   && yum clean all \
   && rm -rf ~/.cache \
   && rm -rf /var/cache/yum \
