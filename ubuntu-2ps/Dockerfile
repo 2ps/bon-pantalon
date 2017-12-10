@@ -110,8 +110,6 @@ RUN echo 'export PYENV_ROOT=''"'"${work_dir}"'/pyenv''"' >> ~/.zshrc \
   && eval "$(pyenv virtualenv-init -)" \
   && pyenv install "${python3_version}" \
   && pyenv install "${python2_version}" \
-  && pyenv virtualenv "${python2_version}" ansible \
-  && pyenv virtualenv "${python3_version}" eshares \
   && pyenv global "${python2_version}"
 COPY entrypoint.sh /entrypoint.sh
 USER ${username}

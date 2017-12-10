@@ -10,13 +10,13 @@ VOLUME /u
 WORKDIR "${work_dir}"
 COPY dircolors .
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
-  && yum updateinfo \
-  && yum makecache fast \
-  && yum -y install zip unzip tar gzip gunzip wget python-pip \
-  && yum -y install openssl openssh \
+      http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-1-13.rhel7.noarch.rpm \
+  && yum updateinfo && yum makecache fast \
+  && yum -y install zip unzip tar gzip gunzip \
+      curl wget python-pip openssl openssh \
+      htop zsh rsync sudo vim pv \
+  && yum -y remove city-fan.org ius-release \
   && pip install --no-cache-dir -U pip virtualenv \
-  && yum -y install htop zsh git2u rsync sudo \
-  && yum -y install vim python27u python36u pv \
   && useradd ${username} \
   && echo "${username}  ALL=(ALL:ALL)  NOPASSWD: ALL" >/etc/sudoers.d/10-local-user \
   && chmod 0440 /etc/sudoers.d/10-local-user \
@@ -29,7 +29,6 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && chmod a+x "${work_dir}/downloads/install-zsh.sh" \
   && sh -c "${work_dir}/downloads/install-zsh.sh || true" \
   && pip install --no-cache-dir -U pip \
-  && pip install --no-cache-dir virtualenv virtualenvwrapper \
   && echo 'fpath=(~/.zsh/completions $fpath)' >> ~/.zshrc \
   && echo "autoload -U compinit && compinit" >> ~/.zshrc \
   && echo "setopt no_beep" >> ~/.zshrc \
@@ -37,12 +36,11 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && echo "set t_vb=" >> /etc/vimrc \
   && cp "${work_dir}"/dircolors ~/.dircolors \
   && echo "eval $(dircolors -b ~/.dircolors) ;" >> ~/.zshrc \
-  && pip install --no-cache-dir virtualenv virtualenvwrapper \
-  && pip install --no-cache-dir -U pip awscli \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
   && cd "${work_dir}" \
   && yum clean all \
   && rm -rf ~/.cache \
+  && rm -rf /var/cache/yum \
   && echo "${docker}" > /etc/docker.conf \
   && cat /etc/docker.conf
 USER "${username}"
