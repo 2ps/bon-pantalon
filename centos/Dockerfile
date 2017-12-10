@@ -1,5 +1,5 @@
 FROM centos:centos7
-ARG name=pshingavi/centos
+ARG name=xxyy/centos
 ARG version
 ENV container docker
 ENV docker "${name}:${version}"
