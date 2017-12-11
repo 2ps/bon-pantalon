@@ -37,7 +37,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && echo "eval \$(dircolors -b ~/.dircolors) ;" >> ~/.zshrc \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
   && cd "${work_dir}" \
-  && yum -y remove git2u city-fan.org ius-release \
+  && yum -y remove git2u city-fan.org-release ius-release \
   && yum clean all \
   && rm -rf ~/.cache \
   && rm -rf /var/cache/yum \
