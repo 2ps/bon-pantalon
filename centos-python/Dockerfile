@@ -1,4 +1,4 @@
-FROM xxyy/centos:0.1
+FROM xxyy/centos-ohmy:0.2
 ARG name=xxyy/centos-python
 ARG version
 ENV docker "${name}:${version}"
