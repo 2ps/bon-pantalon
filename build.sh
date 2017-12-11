@@ -3,11 +3,16 @@ x="${1}"
 dirname="${x}"
 version=$(cat "${dirname}/VERSION")
 name=$(cat "${dirname}/NAME")
-cp dircolors "${x}"
+if [ -f ${x}/prebuild.sh ] ; then
+    /bin/bash "${x}/prebuild.sh" "${x}";
+fi
 docker build \
   --build-arg name="${name}" \
   --build-arg version="${version}" \
   --tag "${name}":latest \
   --tag "${name}:${version}" \
   "${x}"
-rm "${x}"/dircolors
+if [ -f ${x}/postbuild.sh ] ; then
+    echo "calling "${x}/postbuild.sh" . . ."
+    /bin/bash "${x}/postbuild.sh" "${x}";
+fi

@@ -1,4 +1,4 @@
-FROM xxyy/centos:0.1
+FROM xxyy/centos-ohmy:0.3
 ARG name=xxyy/centos-pyenv
 ARG version
 ARG python2=2.7.14
@@ -30,7 +30,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && eval "$(pyenv virtualenv-init -)" \
   && pyenv install "${python2}" \
   && pyenv install "${python3}" \
-  && yum -y remove git2u openssl-devel libffi-devel \
+  && yum -y remove git2u openssl-devel \
         sqlite-devel libjpeg-turbo-devel \
         freetype-devel zlib-devel bzip2-devel gcc gcc-c++ \
         make autoconf ncurses-devel readline-devel gdbm-devel \

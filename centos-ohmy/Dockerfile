@@ -34,7 +34,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && echo "set number" >> /etc/vimrc \
   && echo "set t_vb=" >> /etc/vimrc \
   && cp "${work_dir}"/dircolors ~/.dircolors \
-  && echo "eval $(dircolors -b ~/.dircolors) ;" >> ~/.zshrc \
+  && echo "eval \$(dircolors -b ~/.dircolors) ;" >> ~/.zshrc \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
   && cd "${work_dir}" \
   && yum -y remove git2u city-fan.org ius-release \
@@ -49,7 +49,7 @@ RUN sh -c "${work_dir}/downloads/install-zsh.sh || true" \
   && echo "autoload -U compinit && compinit" >> ~/.zshrc \
   && echo "setopt no_beep" >> ~/.zshrc \
   && cp "${work_dir}"/dircolors ~/.dircolors \
-  && echo 'eval $(dircolors -b ~/.dircolors) ;' >> ~/.zshrc
+  && echo "eval \$(dircolors -b ~/.dircolors) ;" >> ~/.zshrc
 COPY entrypoint.sh /
 WORKDIR /u
 CMD [ "/entrypoint.sh" ]
