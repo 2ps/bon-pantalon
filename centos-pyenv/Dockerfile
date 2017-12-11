@@ -1,4 +1,4 @@
-FROM xxyy/centos-ohmy:0.3
+FROM xxyy/centos-ohmy:0.4
 ARG name=xxyy/centos-pyenv
 ARG version
 ARG python2=2.7.14
@@ -10,7 +10,7 @@ VOLUME /u
 USER root
 WORKDIR "${work_dir}"
 RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
-  && yum updateinfo && sudo yum makecache fast \
+  && yum makecache fast && yum updateinfo \
   && yum -y install git2u openssl-devel libffi-devel \
         sqlite-devel libjpeg-turbo-devel \
         freetype-devel zlib-devel bzip2-devel gcc gcc-c++ \
