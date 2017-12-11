@@ -24,7 +24,6 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && chown -R "${username}":"${username}" "${work_dir}" \
   && cd "${work_dir}/downloads" \
   && chsh -s /bin/zsh \
-  && pip install --no-cache-dir -U pip \
   && cp "${work_dir}"/dircolors ~/.dircolors \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
   && cd "${work_dir}" \
@@ -35,7 +34,7 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && ./centos-install "${username}" \
   && cd .. \
   && rm -rf dotfiles \
-  && yum -y remove git2u city-fan.org-release ius-release \
+  && yum -y remove city-fan.org-release ius-release \
   && yum clean all \
   && rm -rf ~/.cache \
   && rm -rf /var/cache/yum \
