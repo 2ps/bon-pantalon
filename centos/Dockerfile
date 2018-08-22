@@ -24,13 +24,15 @@ RUN yum -y install http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-rel
   && chown -R "${username}":"${username}" "${work_dir}" \
   && cd "${work_dir}/downloads" \
   && wget "https://www.kernel.org/pub/software/scm/git/git-${git_version}.tar.gz" -O "${work_dir}/downloads/git-${git_version}.tgz" \
-  && mkdir -p /u/git-${git_version} \
-  && pushd /u/git-${git_version} \
+  && mkdir -p ${work_dir}/git-${git_version} \
+  && pushd ${work_dir}/git-${git_version} \
   && tar xzf "${work_dir}/downloads/git-${git_version}.tgz" --strip-components=1 \
   && make configure \
   && ./configure --prefix=/usr \
   && make all doc \
+  && make install install-doc \
   && popd \
+  && rm -rf ${work_dir}/git-${git_version} \
   && pip install --no-cache-dir -U pip virtualenv \
   && chsh -s /bin/zsh \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
