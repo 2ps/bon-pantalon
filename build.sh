@@ -6,7 +6,7 @@ name=$(cat "${dirname}/NAME")
 if [ -f ${x}/prebuild.sh ] ; then
     /bin/bash "${x}/prebuild.sh" "${x}";
 fi
-docker build \
+docker.exe build \
   --build-arg name="${name}" \
   --build-arg version="${version}" \
   --tag "${name}":latest \

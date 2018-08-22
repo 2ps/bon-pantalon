@@ -4,18 +4,18 @@ ARG version
 ENV container docker
 ENV docker "${name}:${version}"
 ENV SODIUM_INSTALL system
+ARG git_version=2.18.0
 ARG username=2ps
 ARG work_dir=/work
 VOLUME /u
 WORKDIR "${work_dir}"
-COPY dircolors .
-RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
-      http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-1-13.rhel7.noarch.rpm \
+RUN yum -y install http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-2-1.rhel7.noarch.rpm \
   && yum updateinfo && yum makecache fast \
   && yum -y install zip unzip tar gzip gunzip \
-      curl wget python-pip openssl openssh \
-      htop zsh rsync sudo vim pv git2u \
-  && pip install --no-cache-dir -U pip virtualenv \
+      curl libcurl-devel wget python-pip openssl openssh \
+      htop zsh rsync sudo vim pv autoconf \
+      dh-autoreconf curl-devel expat-devel gettext-devel \
+      openssl-devel perl-devel zlib-devel asciidoc xmlto docbook2X \
   && useradd ${username} \
   && echo "${username}  ALL=(ALL:ALL)  NOPASSWD: ALL" >/etc/sudoers.d/10-local-user \
   && chmod 0440 /etc/sudoers.d/10-local-user \
@@ -23,24 +23,30 @@ RUN yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
   && chmod 0777 "${work_dir}" \
   && chown -R "${username}":"${username}" "${work_dir}" \
   && cd "${work_dir}/downloads" \
+  && wget "https://www.kernel.org/pub/software/scm/git/git-${git_version}.tar.gz" -O "${work_dir}/downloads/git-${git_version}.tgz" \
+  && mkdir -p /u/git-${git_version} \
+  && pushd /u/git-${git_version} \
+  && tar xzf "${work_dir}/downloads/git-${git_version}.tgz" --strip-components=1 \
+  && make configure \
+  && ./configure --prefix=/usr \
+  && make all doc \
+  && popd \
+  && pip install --no-cache-dir -U pip virtualenv \
   && chsh -s /bin/zsh \
-  && cp "${work_dir}"/dircolors ~/.dircolors \
   && sed -i -e 's,^\#set bell-style none$,set bell-style none,g' /etc/inputrc \
   && cd "${work_dir}" \
   && git clone https://github.com/2ps/dotfiles.git \
   && cd dotfiles \
+  && echo "${docker}" > /etc/docker.conf \
   && chmod a+x ./centos-install \
   && ./centos-install \
   && ./centos-install "${username}" \
   && cd .. \
   && rm -rf dotfiles \
-  && yum -y remove city-fan.org-release ius-release \
+  && yum -y remove city-fan.org-release \
   && yum clean all \
   && rm -rf ~/.cache \
-  && rm -rf /var/cache/yum \
-  && echo "${docker}" > /etc/docker.conf \
-  && cat /etc/docker.conf
+  && rm -rf /var/cache/yum
 USER "${username}"
-COPY entrypoint.sh /
 WORKDIR /u
-CMD [ "/entrypoint.sh" ]
+CMD [ "/bin/zsh" ]
