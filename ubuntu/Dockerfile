@@ -21,7 +21,7 @@ COPY build_python.sh build_python.sh
 RUN apt-get -y update \
   && echo "America/Chicago" >/etc/timezone \
   && DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common \
-        vim zsh zip unzip wget curl libcurl4-openssl-dev \
+        vim zsh zip unzip wget curl libcurl4-openssl-dev sudo \
         libssl-dev libffi-dev libxml2-dev libxslt1-dev \
         openssl libssl-doc g++ gcc apt-transport-https \
         git redis libmysqlclient-dev sqlite3 libsqlite3-dev \
@@ -36,12 +36,12 @@ RUN mkdir -p ${work_dir}/downloads \
   && chmod a+x ${work_dir}/build_python.sh \
   && source ${work_dir}/build_python.sh \
   && build_python "${python2_version}" \
-  && build_python "${python3_version}" \
-  && cd ${work_dir} \
+  && build_python "${python3_version}"
+RUN cd ${work_dir} \
   && git clone https://github.com/2ps/dotfiles \
-  && pip install -U pip ansible awscli ipython \
-  && curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - \
-  && sudo wget https://packages.microsoft.com/config/ubuntu/18.04/prod.list -O "/etc/apt/sources.list.d/mssql-release.list" \
+  && pip3.6 install -U pip awscli \
+  && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+  && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
   && sudo apt update \
   && sudo ACCEPT_EULA=Y apt -y install msodbcsql17 mssql-tools \
   && sudo apt install -y unixodbc-dev pv \

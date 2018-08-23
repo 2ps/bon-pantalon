@@ -15,5 +15,7 @@ function build_python {
     fi
     cd "$pdir"
     ./configure && make && make altinstall
+    cd ..
+    rm -f "$filename"
     rm -rf "$pdir"
 }
