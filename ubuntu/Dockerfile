@@ -6,11 +6,10 @@ ARG work_dir=/work
 ENV docker "${name}:${version}"
 ARG username=2ps
 ENV python3_version=3.6.6
-ENV python2_version=2.7.15
 VOLUME /u
 WORKDIR ${work_dir}
 RUN echo "${docker}" > /etc/docker.conf \
-  && apt-get -qq update \
+  && DEBIAN_FRONTEND=noninteractive apt-get -qq update >/dev/null \
   && echo "America/Chicago" >/etc/timezone \
   && DEBIAN_FRONTEND=noninteractive apt-get -qq install apt-utils \
   && DEBIAN_FRONTEND=noninteractive apt-get install \
@@ -27,19 +26,6 @@ RUN echo "${docker}" > /etc/docker.conf \
         git-crypt traceroute dnsutils net-tools nodejs -qq >/dev/null
 SHELL [ "/bin/bash", "-c" ]
 RUN mkdir -p ${work_dir}/downloads \
-  && echo "building python $python2_version" \
-  && cd ${work_dir}/downloads \
-  && filename="${work_dir}/downloads/python-${python2_version}.tgz" \
-  && wget --quiet "https://www.python.org/ftp/python/${python2_version}/Python-${python2_version}.tgz" -O "$filename" \
-  && pdir="${work_dir}/python-${python2_version}" \
-  && mkdir -p $pdir && cd $pdir \
-  && tar xzf "$filename" --strip-components=1 \
-  && ./configure >/dev/null 2>&1 \
-  && make >/dev/null 2>&1 \
-  && make altinstall >/dev/null 2>&1 \
-  && cd ${work_dir} \
-  && rm -f "$filename" \
-  && rm -rf "$pdir" \
   && echo "building python $python3_version" \
   && cd ${work_dir}/downloads \
   && filename="${work_dir}/downloads/python-${python3_version}.tgz" \
