@@ -1,26 +1,20 @@
 FROM ubuntu:bionic
 ENV container=docker
+ARG name=xxyy/ubuntu
+ARG version
 ARG work_dir=/work
+ENV docker "${name}:${version}"
 ARG username=2ps
 ENV python3_version=3.6.6
 ENV python2_version=2.7.15
 VOLUME /u
 WORKDIR ${work_dir}
-COPY build_python.sh build_python.sh
-# I found that when building on my local machine, the
-# apt stuff was running very slowly.  I cheated and used a
-# mirror that I knew would be close to my house in order
-# to speed things up
-#RUN cp /etc/apt/sources.list /etc/apt/sources.list.orig \
-#  && sed -i -e 's/archive.ubuntu.com/mirror.steadfast.net/' /etc/apt/sources.list \
-#  && sed -i -e 's/security.ubuntu.com/mirror.steadfast.net/' /etc/apt/sources.list \
-#
-# Install a bunch of stuff from apt that we use to build
-# other pip requirements and do things like run the dev
-# server in node
-RUN apt-get -y update \
+RUN echo "${docker}" > /etc/docker.conf \
+  && apt-get -qq update \
   && echo "America/Chicago" >/etc/timezone \
-  && DEBIAN_FRONTEND=noninteractive apt-get -y install software-properties-common \
+  && DEBIAN_FRONTEND=noninteractive apt-get -qq install apt-utils \
+  && DEBIAN_FRONTEND=noninteractive apt-get install \
+        software-properties-common htop lsof \
         vim zsh zip unzip wget curl libcurl4-openssl-dev sudo \
         libssl-dev libffi-dev libxml2-dev libxslt1-dev \
         openssl libssl-doc g++ gcc apt-transport-https \
@@ -30,31 +24,57 @@ RUN apt-get -y update \
         make automake autoconf nfs-common bind9utils rsync gnupg \
         libldap2-dev libsasl2-dev build-essential checkinstall \
         libreadline7 libreadline-dev libncursesw5-dev tk-dev libgdbm-dev libc6-dev \
-        git-crypt traceroute dnsutils net-tools nodejs
+        git-crypt traceroute dnsutils net-tools nodejs -qq >/dev/null
 SHELL [ "/bin/bash", "-c" ]
 RUN mkdir -p ${work_dir}/downloads \
-  && chmod a+x ${work_dir}/build_python.sh \
-  && source ${work_dir}/build_python.sh \
-  && build_python "${python2_version}" \
-  && build_python "${python3_version}"
+  && echo "building python $python2_version" \
+  && cd ${work_dir}/downloads \
+  && filename="${work_dir}/downloads/python-${python2_version}.tgz" \
+  && wget --quiet "https://www.python.org/ftp/python/${python2_version}/Python-${python2_version}.tgz" -O "$filename" \
+  && pdir="${work_dir}/python-${python2_version}" \
+  && mkdir -p $pdir && cd $pdir \
+  && tar xzf "$filename" --strip-components=1 \
+  && ./configure >/dev/null 2>&1 \
+  && make >/dev/null 2>&1 \
+  && make altinstall >/dev/null 2>&1 \
+  && cd ${work_dir} \
+  && rm -f "$filename" \
+  && rm -rf "$pdir" \
+  && echo "building python $python3_version" \
+  && cd ${work_dir}/downloads \
+  && filename="${work_dir}/downloads/python-${python3_version}.tgz" \
+  && wget --quiet "https://www.python.org/ftp/python/${python3_version}/Python-${python3_version}.tgz" -O "$filename" \
+  && pdir="${work_dir}/python-${python3_version}" \
+  && mkdir -p $pdir && cd $pdir \
+  && tar xzf "$filename" --strip-components=1 \
+  && ./configure >/dev/null 2>&1 \
+  && make >/dev/null 2>&1 \
+  && make altinstall >/dev/null 2>&1 \
+  && cd ${work_dir} \
+  && rm -f "$filename" \
+  && rm -rf "$pdir"
 RUN cd ${work_dir} \
   && git clone https://github.com/2ps/dotfiles \
-  && pip3.6 install -U pip awscli \
-  && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-  && curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-  && sudo apt update \
-  && sudo ACCEPT_EULA=Y apt -y install msodbcsql17 mssql-tools \
-  && sudo apt install -y unixodbc-dev pv \
+  && pip3.6 install -q -U pip awscli \
+  && rm -rf ~/.cache \
+  && curl -s https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+  && curl -s https://packages.microsoft.com/config/ubuntu/18.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+  && DEBIAN_FRONTEND=noninteractive apt-get -qq update >/dev/null \
+  && ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get -qq install msodbcsql17 mssql-tools >/dev/null \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -qq unixodbc-dev pv >/dev/null \
   && cd ${work_dir}/dotfiles \
-  && ./ubuntu-install
-RUN
-#RUN adduser --shell /bin/zsh --gecos "" --disabled-password --force-badname "${username}" \
-#  && echo "${username}  ALL=(ALL:ALL)  NOPASSWD: ALL" >/etc/sudoers.d/10-local-user \
-#  && chmod 0440 /etc/sudoers.d/10-local-user \
-#  && chown -R "${username}":"${username}" "${work_dir}" \
-#  && chmod 0755 "${work_dir}" \
-#  && cd ${work_dir}/dotfiles \
-#  && ./ubuntu-install ${username}
-#USER ${username}
-#WORKDIR /u
-CMD [ "/bin/bash" ]
+  && cp /etc/hosts /etc/hosts.orig \
+  && echo "127.0.0.1    `hostname`" >/etc/hosts \
+  && ./ubuntu-install \
+  && echo "done with dotfiles" \
+  && adduser --shell /bin/zsh --gecos "" --disabled-password --force-badname "${username}" \
+  && echo "${username}  ALL=(ALL:ALL)  NOPASSWD: ALL" >/etc/sudoers.d/10-local-user \
+  && chmod 0440 /etc/sudoers.d/10-local-user \
+  && chown -R "${username}":"${username}" "${work_dir}" \
+  && chmod 0755 "${work_dir}" \
+  && cd ${work_dir}/dotfiles \
+  && ./ubuntu-install ${username} \
+  && mv -f /etc/hosts.orig /etc/hosts
+USER ${username}
+WORKDIR /u
+CMD [ "/bin/zsh" ]
