@@ -47,6 +47,7 @@ RUN cd ${work_dir} \
   && sudo apt install -y unixodbc-dev pv \
   && cd ${work_dir}/dotfiles \
   && ./ubuntu-install
+RUN
 #RUN adduser --shell /bin/zsh --gecos "" --disabled-password --force-badname "${username}" \
 #  && echo "${username}  ALL=(ALL:ALL)  NOPASSWD: ALL" >/etc/sudoers.d/10-local-user \
 #  && chmod 0440 /etc/sudoers.d/10-local-user \
