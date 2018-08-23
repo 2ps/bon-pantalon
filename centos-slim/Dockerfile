@@ -31,7 +31,6 @@ RUN yum -y install http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-rel
   && make all \
   && make install \
   && popd \
-  && rm -f ${work_dir}/downloads/git-${git_version}.tgz \
   && rm -rf ${work_dir}/git-${git_version} \
   && pip install --no-cache-dir -U pip virtualenv \
   && chsh -s /bin/zsh \
@@ -50,6 +49,5 @@ RUN yum -y install http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-rel
   && rm -rf ~/.cache \
   && rm -rf /var/cache/yum
 USER "${username}"
-RUN whoami
 WORKDIR /u
 CMD [ "/bin/zsh" ]
